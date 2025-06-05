@@ -16,7 +16,7 @@ equity = st.sidebar.number_input("Account Equity ($)", min_value=100, value=1000
 geek_mode = st.sidebar.checkbox("🧠 Show raw numbers (Geek Mode)")
 insight_mode = st.sidebar.radio("Insight Mode", ["Simple", "Advanced"], index=0)
 
-# Launch
+# Launch Analysis
 if st.sidebar.button("🚀 Launch Analysis"):
     try:
         stock = yf.Ticker(ticker)
@@ -27,12 +27,7 @@ if st.sidebar.button("🚀 Launch Analysis"):
 
         # Chart
         fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=hist_full.index,
-            y=hist_full["Close"],
-            mode="lines",
-            name="Close Price"
-        ))
+        fig.add_trace(go.Scatter(x=hist_full.index, y=hist_full["Close"], mode="lines", name="Close Price"))
         fig.update_layout(
             xaxis_title="Date",
             yaxis_title="Price ($)",
@@ -55,22 +50,35 @@ if st.sidebar.button("🚀 Launch Analysis"):
         max_loss_per_trade = round(equity * position_risk_pct, 2)
         shares = int(max_loss_per_trade / (2 * atr)) if atr > 0 else 0
 
-        # Summary Banner
-        st.info(f"📉 Price is {percent_below_ma}% {'below' if percent_below_ma < 0 else 'above'} the 50-day average. "
-                f"The short-term average is {'rising' if short_ma_val > ma_short.iloc[-2] else 'falling'}, "
-                f"and the long-term average is {'rising' if long_ma_val > ma_long.iloc[-2] else 'falling'}.")
-
         # Signal
         if short_ma_val < long_ma_val:
             signal = "🔻 SELL"
+            trend = "Bearish"
+            trend_msg = "⚠️ Momentum appears weak. This is typically a signal to reduce exposure or wait for confirmation of reversal."
         elif short_ma_val > long_ma_val:
             signal = "🚀 BUY"
+            trend = "Bullish"
+            trend_msg = "✅ The short-term trend is rising above the long-term average — momentum is strong."
         else:
             signal = "⏸ HOLD"
+            trend = "Neutral"
+            trend_msg = "⏳ The stock is currently flat, with no strong momentum either way."
 
         st.markdown(f"### Recommendation: {signal}")
+        st.markdown(f"**📊 Current Trend:** {trend} — {trend_msg}")
 
-        # Insight Section (Toggle-Based)
+        # Risk-Profile Adjusted Advice
+        st.markdown("### 🎯 Risk-Adjusted Advice")
+        if experience == "Beginner" and risk <= 30:
+            st.warning("🧠 As a beginner with low risk tolerance, consider starting with diversified ETFs.")
+        elif risk >= 70 and atr > 5:
+            st.warning("⚠️ You may want to reduce position size due to high volatility.")
+        elif goal == "High Growth" and signal == "🚀 BUY":
+            st.success("📈 Your high-growth goal aligns with the current bullish momentum.")
+        else:
+            st.info("💡 Your profile suggests steady investing with an eye on risk management. Use stop-losses and diversify.")
+
+        # Insight Section
         with st.expander("📌 Why this makes sense (click to expand)"):
             if insight_mode == "Simple":
                 st.markdown(f"""
@@ -86,7 +94,7 @@ if st.sidebar.button("🚀 Launch Analysis"):
 1. **Your current price is {abs(percent_below_ma)}% {'below' if percent_below_ma < 0 else 'above'} the long-term trend.**
 2. The short-term trend is **{'above' if short_ma_val > long_ma_val else 'below'}** the long-term trend — that's a sign of momentum **{'building' if short_ma_val > long_ma_val else 'slowing down'}**.
 3. Based on your risk setting of **{risk}%**, Moonvest suggests you only risk **${max_loss_per_trade}** on this trade.
-4. That means you could trade up to **{shares} shares** and protect yourself with a stop-loss at **${stop}** in case things go the other way.
+4. That means you could trade up to **{shares} shares** and protect yourself with a stop-loss at **${stop}**.
 
 > 💡 Simply put: This setup looks like a good opportunity **right now**, but you're protected if momentum shifts. We give you the math — you stay in control.
                 """)
@@ -108,7 +116,7 @@ if st.sidebar.button("🚀 Launch Analysis"):
 
 ### 📌 Interpretation:
 
-- Momentum is currently **{('bullish' if short_ma_val > long_ma_val else 'bearish')}**.
+- Momentum is currently **{trend.lower()}**.
 - Risk is managed with a **${stop}** stop-loss based on recent volatility.
 - Ideal for **{goal.lower()}** strategies with a **{experience.lower()}** investor profile.
                 """)
