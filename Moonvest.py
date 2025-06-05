@@ -14,6 +14,7 @@ risk = st.sidebar.slider("Risk Tolerance (%)", 0, 100, 50)
 experience = st.sidebar.selectbox("Investor Experience", ["Beginner", "Intermediate", "Advanced"])
 equity = st.sidebar.number_input("Account Equity ($)", min_value=100, value=1000)
 geek_mode = st.sidebar.checkbox("🧠 Show raw numbers (Geek Mode)")
+insight_mode = st.sidebar.radio("Insight Mode", ["Simple", "Advanced"], index=0)
 
 # Launch
 if st.sidebar.button("🚀 Launch Analysis"):
@@ -69,9 +70,10 @@ if st.sidebar.button("🚀 Launch Analysis"):
 
         st.markdown(f"### Recommendation: {signal}")
 
-        # Insight Section (Beginner-Friendly)
+        # Insight Section (Toggle-Based)
         with st.expander("📌 Why this makes sense (click to expand)"):
-            st.markdown(f"""
+            if insight_mode == "Simple":
+                st.markdown(f"""
 - 📈 **Short-term trend (20-day avg):** ${round(short_ma_val, 2)}
 - 🧭 **Long-term trend (50-day avg):** ${round(long_ma_val, 2)}
 - 📊 **Daily movement (ATR):** ${round(atr, 2)}
@@ -86,10 +88,30 @@ if st.sidebar.button("🚀 Launch Analysis"):
 3. Based on your risk setting of **{risk}%**, Moonvest suggests you only risk **${max_loss_per_trade}** on this trade.
 4. That means you could trade up to **{shares} shares** and protect yourself with a stop-loss at **${stop}** in case things go the other way.
 
+> 💡 Simply put: This setup looks like a good opportunity **right now**, but you're protected if momentum shifts. We give you the math — you stay in control.
+                """)
+            else:
+                st.markdown(f"""
+### 📊 Technical Breakdown
+
+- **20-day MA:** ${round(short_ma_val, 2)}
+- **50-day MA:** ${round(long_ma_val, 2)}
+- **ATR (14):** ${round(atr, 2)}
+- **% Distance from 50 MA:** {percent_below_ma}%
+- **Stop-Loss Recommendation:** ${stop}
+- **Max Risk Allowed:** ${max_loss_per_trade}
+- **Position Sizing Formula:**  
+  \> `Shares = Risk ÷ (2 × ATR)`  
+  \> `= {max_loss_per_trade} ÷ {round(2 * atr, 2)} = {shares} shares`
+
 ---
 
-> 💡 Simply put: This setup looks like a good opportunity **right now**, but you're protected if momentum shifts. We give you the math — you stay in control.
-""")
+### 📌 Interpretation:
+
+- Momentum is currently **{('bullish' if short_ma_val > long_ma_val else 'bearish')}**.
+- Risk is managed with a **${stop}** stop-loss based on recent volatility.
+- Ideal for **{goal.lower()}** strategies with a **{experience.lower()}** investor profile.
+                """)
 
         # Geek Mode
         if geek_mode:
