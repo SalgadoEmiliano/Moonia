@@ -1,6 +1,7 @@
 # 🌕 Moonvest – Smart Stock Analyzer
 
-Moonvest is a sleek, data-driven stock analysis app built to empower modern investors with clear, actionable insights.  
+Moonvest is a sleek, data-driven stock analysis app built to empower modern investors with clear, actionable insights. 
+
 In one click, Moonvest analyzes stock price data and delivers intelligent BUY, HOLD, or SELL signals — no noise, no guesswork.
 
 👉 [Try Moonvest Live on Streamlit](https://moonvest.streamlit.app/)
