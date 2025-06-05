@@ -12,9 +12,6 @@ st.markdown("<h1 style='font-size: 2.5em;'>🌕 Moonia: AI-Powered Stock Strateg
 st.markdown("<h4 style='color: #bbb;'>Smarter insights. Safer trades. Always one step ahead.</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
-st.title("🌕 Moonia: AI-Powered Stock Strategist")
-st.caption("Smarter insights. Safer trades. Always one step ahead.")
-
 # Sidebar Inputs
 st.sidebar.header("Investor Profile")
 ticker = st.sidebar.text_input("Enter Stock Ticker", value="AAPL")
