@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 st.set_page_config(page_title="Moonvest - Smart Stock Analyzer", page_icon="🌕", layout="wide")
-st.title("🌕 Moonvest: Smart Stock Analyzer")
+st.title("\U0001F315 Moonvest: Smart Stock Analyzer")
 
 # Sidebar Inputs
 st.sidebar.header("Investor Profile")
@@ -16,7 +16,6 @@ equity = st.sidebar.number_input("Account Equity ($)", min_value=100, value=1000
 geek_mode = st.sidebar.checkbox("🧠 Show raw numbers (Geek Mode)")
 insight_mode = st.sidebar.radio("Insight Mode", ["Simple", "Advanced"], index=0)
 
-# Launch Analysis
 if st.sidebar.button("🚀 Launch Analysis"):
     try:
         stock = yf.Ticker(ticker)
@@ -25,19 +24,11 @@ if st.sidebar.button("🚀 Launch Analysis"):
 
         st.subheader(f"📈 {ticker.upper()} - 5 Year Performance")
 
-        # Chart
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=hist_full.index, y=hist_full["Close"], mode="lines", name="Close Price"))
-        fig.update_layout(
-            xaxis_title="Date",
-            yaxis_title="Price ($)",
-            template="plotly_dark",
-            hovermode="x unified",
-            height=500
-        )
+        fig.update_layout(xaxis_title="Date", yaxis_title="Price ($)", template="plotly_dark", hovermode="x unified", height=500)
         st.plotly_chart(fig, use_container_width=True)
 
-        # Indicators
         close_price = hist["Close"].iloc[-1]
         ma_short = hist["Close"].rolling(window=20).mean()
         ma_long = hist["Close"].rolling(window=50).mean()
@@ -50,78 +41,56 @@ if st.sidebar.button("🚀 Launch Analysis"):
         max_loss_per_trade = round(equity * position_risk_pct, 2)
         shares = int(max_loss_per_trade / (2 * atr)) if atr > 0 else 0
 
-        # Signal
-        if short_ma_val < long_ma_val:
-            signal = "🔻 SELL"
-            trend = "Bearish"
-            trend_msg = "⚠️ Momentum appears weak. This is typically a signal to reduce exposure or wait for confirmation of reversal."
-        elif short_ma_val > long_ma_val:
-            signal = "🚀 BUY"
-            trend = "Bullish"
-            trend_msg = "✅ The short-term trend is rising above the long-term average — momentum is strong."
-        else:
-            signal = "⏸ HOLD"
-            trend = "Neutral"
-            trend_msg = "⏳ The stock is currently flat, with no strong momentum either way."
+        short_trend_rising = short_ma_val > ma_short.iloc[-2]
+        long_trend_rising = long_ma_val > ma_long.iloc[-2]
+        trend = "Bullish" if short_ma_val > long_ma_val else "Bearish" if short_ma_val < long_ma_val else "Neutral"
 
+        # Trend Summary
+        st.info(f"🔺 Price is {abs(percent_below_ma)}% {'above' if percent_below_ma > 0 else 'below'} the 50-day average. "
+                 f"The short-term average is {'rising' if short_trend_rising else 'falling'}, and the long-term average is {'rising' if long_trend_rising else 'falling'}.")
+
+        signal = "🔻 SELL" if trend == "Bearish" else "🚀 BUY" if trend == "Bullish" else "⏸ HOLD"
         st.markdown(f"### Recommendation: {signal}")
-        st.markdown(f"**📊 Current Trend:** {trend} — {trend_msg}")
 
-        # Risk-Profile Adjusted Advice
+        st.markdown(f"""
+        🌐 **Current Trend:** {trend} ✅ The short-term trend is {'above' if trend == 'Bullish' else 'below' if trend == 'Bearish' else 'equal to'} the long-term average — momentum is {'strong' if trend == 'Bullish' else 'weak' if trend == 'Bearish' else 'unclear'}.
+        """)
+
+        with st.expander("📊 What this means"):
+            if trend == "Bullish":
+                st.success("A bullish trend means recent price action is strong. Momentum favors continued growth in the near-term.")
+            elif trend == "Bearish":
+                st.warning("A bearish trend signals weakening momentum. Be cautious — prices may continue falling or become volatile.")
+            else:
+                st.info("Momentum is unclear. It may be better to wait for a clearer signal before acting.")
+
+        # Risk-Adjusted Advice Section
         st.markdown("### 🎯 Risk-Adjusted Advice")
-        if experience == "Beginner" and risk <= 30:
-            st.warning("🧠 As a beginner with low risk tolerance, consider starting with diversified ETFs.")
-        elif risk >= 70 and atr > 5:
-            st.warning("⚠️ You may want to reduce position size due to high volatility.")
-        elif goal == "High Growth" and signal == "🚀 BUY":
-            st.success("📈 Your high-growth goal aligns with the current bullish momentum.")
-        else:
-            st.info("💡 Your profile suggests steady investing with an eye on risk management. Use stop-losses and diversify.")
+        advice = []
+        if goal == "High Growth" and trend == "Bullish":
+            advice.append("Your high-growth goal aligns with the current bullish momentum.")
+        if risk < 30 and atr > 10:
+            advice.append("You may want to reduce position size due to high volatility.")
+        if experience == "Beginner" and risk < 30:
+            advice.append("As a beginner with low risk tolerance, consider starting with ETFs.")
+        for tip in advice:
+            st.success(f"📉 {tip}")
 
-        # Insight Section
         with st.expander("📌 Why this makes sense (click to expand)"):
-            if insight_mode == "Simple":
-                st.markdown(f"""
-- 📈 **Short-term trend (20-day avg):** ${round(short_ma_val, 2)}
-- 🧭 **Long-term trend (50-day avg):** ${round(long_ma_val, 2)}
-- 📊 **Daily movement (ATR):** ${round(atr, 2)}
-- 🛑 **Suggested safety stop:** ≈ ${stop}
-
+            st.markdown(f"""
+- 📉 **Short-term trend (20-day avg):** ${round(short_ma_val, 2)}
+- 🌍 **Long-term trend (50-day avg):** ${round(long_ma_val, 2)}
+- 🌃 **Daily movement (ATR):** ${round(atr, 2)}
+- 🔴 **Suggested safety stop:** ≈ ${stop}
 ---
-
 ### Here's what it means:
-
 1. **Your current price is {abs(percent_below_ma)}% {'below' if percent_below_ma < 0 else 'above'} the long-term trend.**
 2. The short-term trend is **{'above' if short_ma_val > long_ma_val else 'below'}** the long-term trend — that's a sign of momentum **{'building' if short_ma_val > long_ma_val else 'slowing down'}**.
 3. Based on your risk setting of **{risk}%**, Moonvest suggests you only risk **${max_loss_per_trade}** on this trade.
-4. That means you could trade up to **{shares} shares** and protect yourself with a stop-loss at **${stop}**.
-
+4. That means you could trade up to **{shares} shares** and protect yourself with a stop-loss at **${stop}** in case things go the other way.
 > 💡 Simply put: This setup looks like a good opportunity **right now**, but you're protected if momentum shifts. We give you the math — you stay in control.
-                """)
-            else:
-                st.markdown(f"""
-### 📊 Technical Breakdown
+            """)
 
-- **20-day MA:** ${round(short_ma_val, 2)}
-- **50-day MA:** ${round(long_ma_val, 2)}
-- **ATR (14):** ${round(atr, 2)}
-- **% Distance from 50 MA:** {percent_below_ma}%
-- **Stop-Loss Recommendation:** ${stop}
-- **Max Risk Allowed:** ${max_loss_per_trade}
-- **Position Sizing Formula:**  
-  \> `Shares = Risk ÷ (2 × ATR)`  
-  \> `= {max_loss_per_trade} ÷ {round(2 * atr, 2)} = {shares} shares`
-
----
-
-### 📌 Interpretation:
-
-- Momentum is currently **{trend.lower()}**.
-- Risk is managed with a **${stop}** stop-loss based on recent volatility.
-- Ideal for **{goal.lower()}** strategies with a **{experience.lower()}** investor profile.
-                """)
-
-        # Geek Mode
         if geek_mode:
             st.markdown("---")
             st.markdown("### 🧠 Geek Mode – Raw Data")
