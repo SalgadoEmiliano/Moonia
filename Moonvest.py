@@ -8,15 +8,19 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 
-st.set_page_config(page_title="Moonvest - Smart Stock Analyzer", layout="wide")
-st.title("🌕 Moonvest: Smart Stock Analyzer")
+# 🌕 Moonvest Branding
+st.set_page_config(
+    page_title="Moonvest - Smart Stock Analyzer",
+    page_icon="🌕",
+    layout="wide"
+)
 
-# Description
+# App Title & Mission
+st.title("🌕 Moonvest: Smart Stock Analyzer")
 st.markdown("""
 Moonvest is a stock analysis engine delivering simple yet powerful insights.  
 🚀 Backed by logic. 📈 Built for clarity. 🌕 Designed to guide your investments to the moon.
 """)
-
 st.markdown("---")
 st.markdown("### 🌍 Our Mission")
 st.markdown("Democratizing financial strategy for every investor — beginner or pro.")
@@ -30,7 +34,7 @@ experience = st.sidebar.selectbox("Investor Experience", ["Beginner", "Intermedi
 equity = st.sidebar.number_input("Account Equity ($)", min_value=100, value=1000)
 insight_mode = st.sidebar.radio("Insight Mode", ["Simple", "Advanced"])
 
-# Button
+# Launch Analysis
 if st.sidebar.button("🚀 Launch Analysis"):
     try:
         stock = yf.Ticker(ticker)
@@ -42,11 +46,13 @@ if st.sidebar.button("🚀 Launch Analysis"):
         fig.update_layout(template="plotly_dark", hovermode="x unified", height=500)
         st.plotly_chart(fig, use_container_width=True)
 
+        # Key Indicators
         ma_short = hist["Close"].rolling(window=20).mean()
         ma_long = hist["Close"].rolling(window=50).mean()
         atr = hist["High"].subtract(hist["Low"]).rolling(window=14).mean().iloc[-1]
         stop_loss = hist["Close"].iloc[-1] - atr
 
+        # Signal
         if ma_short.iloc[-1] < ma_long.iloc[-1]:
             signal = "🔻 SELL"
             explanation = "The short-term trend has dropped below the long-term trend. Risk is elevated."
@@ -63,16 +69,16 @@ if st.sidebar.button("🚀 Launch Analysis"):
         if insight_mode == "Advanced":
             st.markdown("#### 🔍 Why This Makes Sense:")
             st.markdown(f"""
-- **Short-term (20-day MA):** {ma_short.iloc[-1]:.2f}  
-- **Long-term (50-day MA):** {ma_long.iloc[-1]:.2f}  
-- **Daily movement (ATR):** {atr:.2f}  
-- **Suggested safety stop-loss:** ≈ {stop_loss:.2f}  
+- 📈 **Short-term trend (20-day avg):** ${ma_short.iloc[-1]:.2f}  
+- 🧭 **Long-term trend (50-day avg):** ${ma_long.iloc[-1]:.2f}  
+- 📊 **Daily movement (ATR):** ${atr:.2f}  
+- 🛑 **Suggested safety stop:** ≈ ${stop_loss:.2f}  
 """)
 
         with st.expander("🧾 Show Historical Data"):
             st.dataframe(hist.tail(30))
 
-        # 📤 Export as PDF
+        # PDF Export Button
         def generate_pdf():
             buffer = BytesIO()
             c = canvas.Canvas(buffer, pagesize=letter)
@@ -97,13 +103,13 @@ if st.sidebar.button("🚀 Launch Analysis"):
 
             c.drawString(50, y, "Key Metrics:")
             y -= 20
-            c.drawString(70, y, f"20-day MA: {ma_short.iloc[-1]:.2f}")
+            c.drawString(70, y, f"20-day MA: ${ma_short.iloc[-1]:.2f}")
             y -= 20
-            c.drawString(70, y, f"50-day MA: {ma_long.iloc[-1]:.2f}")
+            c.drawString(70, y, f"50-day MA: ${ma_long.iloc[-1]:.2f}")
             y -= 20
-            c.drawString(70, y, f"ATR (14-day): {atr:.2f}")
+            c.drawString(70, y, f"ATR (14-day): ${atr:.2f}")
             y -= 20
-            c.drawString(70, y, f"Suggested Stop-Loss: {stop_loss:.2f}")
+            c.drawString(70, y, f"Suggested Stop-Loss: ${stop_loss:.2f}")
             y -= 40
 
             c.drawString(50, y, "Investor Profile:")
