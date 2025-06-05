@@ -62,23 +62,20 @@ if st.sidebar.button("🚀 Launch Analysis"):
         # Signal
         if short_ma_val < long_ma_val:
             signal = "🔻 SELL"
-            explanation = "Short-term momentum has dropped below the long-term trend. Risk is elevated."
         elif short_ma_val > long_ma_val:
             signal = "🚀 BUY"
-            explanation = "Short-term trend is strong. Market momentum supports upside potential."
         else:
             signal = "⏸ HOLD"
-            explanation = "No clear trend direction. Hold for now."
 
         st.markdown(f"### Recommendation: {signal}")
 
-        # Friendlier Insight
+        # Insight Section (Beginner-Friendly)
         with st.expander("📌 Why this makes sense (click to expand)"):
             st.markdown(f"""
-**Short-term trend (20-day avg):** ${round(short_ma_val, 2)}  
-**Long-term trend (50-day avg):** ${round(long_ma_val, 2)}  
-**Daily movement (ATR):** ${round(atr, 2)}  
-**Suggested safety stop:** ≈ ${stop}
+- 📈 **Short-term trend (20-day avg):** ${round(short_ma_val, 2)}
+- 🧭 **Long-term trend (50-day avg):** ${round(long_ma_val, 2)}
+- 📊 **Daily movement (ATR):** ${round(atr, 2)}
+- 🛑 **Suggested safety stop:** ≈ ${stop}
 
 ---
 
@@ -94,7 +91,7 @@ if st.sidebar.button("🚀 Launch Analysis"):
 > 💡 Simply put: This setup looks like a good opportunity **right now**, but you're protected if momentum shifts. We give you the math — you stay in control.
 """)
 
-        # Raw Geek Mode
+        # Geek Mode
         if geek_mode:
             st.markdown("---")
             st.markdown("### 🧠 Geek Mode – Raw Data")
