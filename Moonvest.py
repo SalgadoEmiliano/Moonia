@@ -49,7 +49,7 @@ if st.sidebar.button("🚀 Launch Analysis"):
         long_ma_val = ma_long.iloc[-1]
         atr = (hist["High"] - hist["Low"]).rolling(window=14).mean().iloc[-1]
         stop = round(close_price - 2 * atr, 2)
-        percent_below_ma = round(((close_price - ma_long.iloc[-1]) / ma_long.iloc[-1]) * 100, 2)
+        percent_below_ma = round(((close_price - long_ma_val) / long_ma_val) * 100, 2)
         position_risk_pct = round(risk / 100, 2)
         max_loss_per_trade = round(equity * position_risk_pct, 2)
         shares = int(max_loss_per_trade / (2 * atr)) if atr > 0 else 0
@@ -72,21 +72,27 @@ if st.sidebar.button("🚀 Launch Analysis"):
 
         st.markdown(f"### Recommendation: {signal}")
 
-        # Insight Box
+        # Friendlier Insight
         with st.expander("📌 Why this makes sense (click to expand)"):
             st.markdown(f"""
-**Short-term average:** {round(short_ma_val, 2)}  
-**Long-term average:** {round(long_ma_val, 2)}  
-**ATR (14):** {round(atr, 2)}  
-**Suggested stop:** ≈ ${stop}
+**Short-term trend (20-day avg):** ${round(short_ma_val, 2)}  
+**Long-term trend (50-day avg):** ${round(long_ma_val, 2)}  
+**Daily movement (ATR):** ${round(atr, 2)}  
+**Suggested safety stop:** ≈ ${stop}
 
-1. Your current price is **{percent_below_ma}% {('below' if percent_below_ma < 0 else 'above')}** the long-term trend.
-2. This setup suggests that recent momentum is **{'weakening' if short_ma_val < long_ma_val else 'improving'}**.
-3. Based on your risk tolerance of **{risk}%**, your suggested loss cap is **${max_loss_per_trade}**.
-4. You could buy/sell approximately **{shares} shares** with a stop-loss at **${stop}** to match your risk.
+---
 
-{f"5. As a {experience.lower()}, consider managing your position cautiously. Diversify and rebalance gradually." if experience == 'Beginner' else ""}
-            """)
+### Here's what it means:
+
+1. **Your current price is {abs(percent_below_ma)}% {'below' if percent_below_ma < 0 else 'above'} the long-term trend.**
+2. The short-term trend is **{'above' if short_ma_val > long_ma_val else 'below'}** the long-term trend — that's a sign of momentum **{'building' if short_ma_val > long_ma_val else 'slowing down'}**.
+3. Based on your risk setting of **{risk}%**, Moonvest suggests you only risk **${max_loss_per_trade}** on this trade.
+4. That means you could trade up to **{shares} shares** and protect yourself with a stop-loss at **${stop}** in case things go the other way.
+
+---
+
+> 💡 Simply put: This setup looks like a good opportunity **right now**, but you're protected if momentum shifts. We give you the math — you stay in control.
+""")
 
         # Raw Geek Mode
         if geek_mode:
