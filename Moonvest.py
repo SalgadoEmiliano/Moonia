@@ -29,8 +29,7 @@ We believe that anyone — from first-time investors to experienced traders — 
 Our platform transforms complex data into clear, human-readable insights so you can stop guessing and start growing.
 """)
 
-> Moonvest isn't just a tool — it's your personal strategy engine.
-""")
+st.markdown("""> Moonvest isn't just a tool — it's your personal strategy engine.""")
 
 # 🧾 Sidebar Inputs
 st.sidebar.header("Investor Profile")
