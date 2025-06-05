@@ -2,28 +2,9 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
-from datetime import datetime
-from io import BytesIO
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
 
-# 🌕 Moonvest Branding
-st.set_page_config(
-    page_title="Moonvest - Smart Stock Analyzer",
-    page_icon="🌕",
-    layout="wide"
-)
-
-# App Title & Mission
+st.set_page_config(page_title="Moonvest - Smart Stock Analyzer", layout="wide")
 st.title("🌕 Moonvest: Smart Stock Analyzer")
-st.markdown("""
-Moonvest is a stock analysis engine delivering simple yet powerful insights.  
-🚀 Backed by logic. 📈 Built for clarity. 🌕 Designed to guide your investments to the moon.
-""")
-st.markdown("---")
-st.markdown("### 🌍 Our Mission")
-st.markdown("Democratizing financial strategy for every investor — beginner or pro.")
 
 # Sidebar Inputs
 st.sidebar.header("Investor Profile")
@@ -32,107 +13,122 @@ goal = st.sidebar.selectbox("Investment Goal", ["High Growth", "Capital Preserva
 risk = st.sidebar.slider("Risk Tolerance (%)", 0, 100, 50)
 experience = st.sidebar.selectbox("Investor Experience", ["Beginner", "Intermediate", "Advanced"])
 equity = st.sidebar.number_input("Account Equity ($)", min_value=100, value=1000)
-insight_mode = st.sidebar.radio("Insight Mode", ["Simple", "Advanced"])
+geek_mode = st.sidebar.checkbox("🧠 Show raw numbers (Geek Mode)")
+insight_mode = st.sidebar.radio("Insight Mode", ["Simple", "Advanced"], index=0)
 
-# Launch Analysis
+# Launch
 if st.sidebar.button("🚀 Launch Analysis"):
     try:
         stock = yf.Ticker(ticker)
         hist = stock.history(period="6mo")
+        hist_full = stock.history(period="5y")
 
-        st.subheader(f"📈 {ticker.upper()} - Performance Chart")
+        st.subheader(f"📈 {ticker.upper()} - 5 Year Performance")
+
+        # Chart
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=hist.index, y=hist["Close"], mode="lines", name="Close Price"))
-        fig.update_layout(template="plotly_dark", hovermode="x unified", height=500)
+        fig.add_trace(go.Scatter(
+            x=hist_full.index,
+            y=hist_full["Close"],
+            mode="lines",
+            name="Close Price"
+        ))
+        fig.update_layout(
+            xaxis_title="Date",
+            yaxis_title="Price ($)",
+            template="plotly_dark",
+            hovermode="x unified",
+            height=500
+        )
         st.plotly_chart(fig, use_container_width=True)
 
-        # Key Indicators
+        # Indicators
+        close_price = hist["Close"].iloc[-1]
         ma_short = hist["Close"].rolling(window=20).mean()
         ma_long = hist["Close"].rolling(window=50).mean()
-        atr = hist["High"].subtract(hist["Low"]).rolling(window=14).mean().iloc[-1]
-        stop_loss = hist["Close"].iloc[-1] - atr
+        short_ma_val = ma_short.iloc[-1]
+        long_ma_val = ma_long.iloc[-1]
+        atr = (hist["High"] - hist["Low"]).rolling(window=14).mean().iloc[-1]
+        stop = round(close_price - 2 * atr, 2)
+        percent_below_ma = round(((close_price - long_ma_val) / long_ma_val) * 100, 2)
+        position_risk_pct = round(risk / 100, 2)
+        max_loss_per_trade = round(equity * position_risk_pct, 2)
+        shares = int(max_loss_per_trade / (2 * atr)) if atr > 0 else 0
+
+        # Summary Banner
+        st.info(f"📉 Price is {percent_below_ma}% {'below' if percent_below_ma < 0 else 'above'} the 50-day average. "
+                f"The short-term average is {'rising' if short_ma_val > ma_short.iloc[-2] else 'falling'}, "
+                f"and the long-term average is {'rising' if long_ma_val > ma_long.iloc[-2] else 'falling'}.")
 
         # Signal
-        if ma_short.iloc[-1] < ma_long.iloc[-1]:
+        if short_ma_val < long_ma_val:
             signal = "🔻 SELL"
-            explanation = "The short-term trend has dropped below the long-term trend. Risk is elevated."
-        elif ma_short.iloc[-1] > ma_long.iloc[-1]:
+        elif short_ma_val > long_ma_val:
             signal = "🚀 BUY"
-            explanation = "Momentum is positive — the short-term trend is leading the long-term average."
         else:
             signal = "⏸ HOLD"
-            explanation = "No clear signal yet. Price is stabilizing."
 
-        st.markdown(f"### 📌 Recommendation: {signal}")
-        st.markdown(explanation)
+        st.markdown(f"### Recommendation: {signal}")
 
-        if insight_mode == "Advanced":
-            st.markdown("#### 🔍 Why This Makes Sense:")
-            st.markdown(f"""
-- 📈 **Short-term trend (20-day avg):** ${ma_short.iloc[-1]:.2f}  
-- 🧭 **Long-term trend (50-day avg):** ${ma_long.iloc[-1]:.2f}  
-- 📊 **Daily movement (ATR):** ${atr:.2f}  
-- 🛑 **Suggested safety stop:** ≈ ${stop_loss:.2f}  
-""")
+        # Insight Section (Toggle-Based)
+        with st.expander("📌 Why this makes sense (click to expand)"):
+            if insight_mode == "Simple":
+                st.markdown(f"""
+- 📈 **Short-term trend (20-day avg):** ${round(short_ma_val, 2)}
+- 🧭 **Long-term trend (50-day avg):** ${round(long_ma_val, 2)}
+- 📊 **Daily movement (ATR):** ${round(atr, 2)}
+- 🛑 **Suggested safety stop:** ≈ ${stop}
+
+---
+
+### Here's what it means:
+
+1. **Your current price is {abs(percent_below_ma)}% {'below' if percent_below_ma < 0 else 'above'} the long-term trend.**
+2. The short-term trend is **{'above' if short_ma_val > long_ma_val else 'below'}** the long-term trend — that's a sign of momentum **{'building' if short_ma_val > long_ma_val else 'slowing down'}**.
+3. Based on your risk setting of **{risk}%**, Moonvest suggests you only risk **${max_loss_per_trade}** on this trade.
+4. That means you could trade up to **{shares} shares** and protect yourself with a stop-loss at **${stop}** in case things go the other way.
+
+> 💡 Simply put: This setup looks like a good opportunity **right now**, but you're protected if momentum shifts. We give you the math — you stay in control.
+                """)
+            else:
+                st.markdown(f"""
+### 📊 Technical Breakdown
+
+- **20-day MA:** ${round(short_ma_val, 2)}
+- **50-day MA:** ${round(long_ma_val, 2)}
+- **ATR (14):** ${round(atr, 2)}
+- **% Distance from 50 MA:** {percent_below_ma}%
+- **Stop-Loss Recommendation:** ${stop}
+- **Max Risk Allowed:** ${max_loss_per_trade}
+- **Position Sizing Formula:**  
+  \> `Shares = Risk ÷ (2 × ATR)`  
+  \> `= {max_loss_per_trade} ÷ {round(2 * atr, 2)} = {shares} shares`
+
+---
+
+### 📌 Interpretation:
+
+- Momentum is currently **{('bullish' if short_ma_val > long_ma_val else 'bearish')}**.
+- Risk is managed with a **${stop}** stop-loss based on recent volatility.
+- Ideal for **{goal.lower()}** strategies with a **{experience.lower()}** investor profile.
+                """)
+
+        # Geek Mode
+        if geek_mode:
+            st.markdown("---")
+            st.markdown("### 🧠 Geek Mode – Raw Data")
+            st.code(f"""
+Price: ${round(close_price, 2)}
+20-day MA: {round(short_ma_val, 2)}
+50-day MA: {round(long_ma_val, 2)}
+ATR (14): {round(atr, 2)}
+% Below 50-day MA: {percent_below_ma}%
+Suggested Stop: ${stop}
+Position Size: {shares} shares @ max ${max_loss_per_trade} risk
+            """, language='python')
 
         with st.expander("🧾 Show Historical Data"):
-            st.dataframe(hist.tail(30))
-
-        # PDF Export Button
-        def generate_pdf():
-            buffer = BytesIO()
-            c = canvas.Canvas(buffer, pagesize=letter)
-            width, height = letter
-
-            # Header
-            c.setFont("Helvetica-Bold", 16)
-            c.drawString(50, height - 50, "🌕 Moonvest Investor Report")
-            c.setFont("Helvetica", 10)
-            c.drawString(50, height - 65, f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            c.line(50, height - 70, width - 50, height - 70)
-
-            # Body
-            y = height - 100
-            c.setFont("Helvetica", 12)
-            c.drawString(50, y, f"Stock Ticker: {ticker.upper()}")
-            y -= 20
-            c.drawString(50, y, f"Recommendation: {signal}")
-            y -= 20
-            c.drawString(50, y, f"Explanation: {explanation}")
-            y -= 40
-
-            c.drawString(50, y, "Key Metrics:")
-            y -= 20
-            c.drawString(70, y, f"20-day MA: ${ma_short.iloc[-1]:.2f}")
-            y -= 20
-            c.drawString(70, y, f"50-day MA: ${ma_long.iloc[-1]:.2f}")
-            y -= 20
-            c.drawString(70, y, f"ATR (14-day): ${atr:.2f}")
-            y -= 20
-            c.drawString(70, y, f"Suggested Stop-Loss: ${stop_loss:.2f}")
-            y -= 40
-
-            c.drawString(50, y, "Investor Profile:")
-            y -= 20
-            c.drawString(70, y, f"Goal: {goal}")
-            y -= 20
-            c.drawString(70, y, f"Risk Tolerance: {risk}%")
-            y -= 20
-            c.drawString(70, y, f"Experience: {experience}")
-            y -= 20
-            c.drawString(70, y, f"Equity: ${equity:,.2f}")
-
-            # Footer
-            c.setFont("Helvetica-Oblique", 8)
-            c.drawString(50, 40, "Empowering smarter investing — www.moonvest.app")
-            c.drawString(50, 28, "This report is for informational purposes only and does not constitute financial advice.")
-            c.drawRightString(width - 50, 28, "Page 1 of 1")
-            c.save()
-            buffer.seek(0)
-            return buffer
-
-        pdf = generate_pdf()
-        st.download_button("📤 Export as PDF", data=pdf, file_name="Moonvest_Report.pdf")
+            st.dataframe(hist_full.tail(30))
 
     except Exception as e:
         st.error("⚠️ Error loading stock data. Please verify the ticker and try again.")
