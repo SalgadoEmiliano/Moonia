@@ -3,138 +3,182 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 
-# ----- Page Settings -----
-st.set_page_config(page_title="Moonia", page_icon="🌕")
+st.set_page_config(page_title="Moonia – AI-Powered Stock Strategist", layout="wide")
 
-# ----- Title -----
-st.markdown("## 🌕 Moonia: AI-Powered Stock Strategist")
-st.markdown("### Smarter insights. Safer trades. Always one step ahead.")
-st.markdown("---")
+# Title + Tagline
+st.markdown("<h1 style='font-size: 2.4em;'>🌕 Moonia: AI-Powered Stock Strategist</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='color:gray;margin-top:-15px;'>Smarter insights. Safer trades. Always one step ahead.</h4>", unsafe_allow_html=True)
 
-# ----- Sidebar -----
+# Sidebar Inputs
 st.sidebar.header("Investor Profile")
 ticker = st.sidebar.text_input("Enter Stock Ticker", value="AAPL")
-goal = st.sidebar.selectbox("Investment Goal", ["High Growth", "Steady Growth", "Value"])
+goal = st.sidebar.selectbox("Investment Goal", ["High Growth", "Capital Preservation", "Balanced Strategy"])
 risk = st.sidebar.slider("Risk Tolerance (%)", 0, 100, 50)
 experience = st.sidebar.selectbox("Investor Experience", ["Beginner", "Intermediate", "Advanced"])
-equity = st.sidebar.number_input("Account Equity ($)", value=1000)
-show_geek = st.sidebar.checkbox("🧠 Show raw numbers (Geek Mode)")
-mode = st.sidebar.radio("Insight Mode", ["Simple", "Advanced"])
-launched = st.sidebar.button("🚀 Launch Analysis")
+equity = st.sidebar.number_input("Account Equity ($)", min_value=100, value=1000)
+geek_mode = st.sidebar.checkbox("🧠 Show raw numbers (Geek Mode)")
+insight_mode = st.sidebar.radio("Insight Mode", ["Simple", "Advanced"], index=0)
 
-# ----- Run Only if Button is Clicked -----
-if launched:
+# Launch
+if st.sidebar.button("🚀 Launch Analysis"):
     try:
-        # ----- Fetch Data -----
-        df = yf.download(ticker, period="5y")
-        df["20_MA"] = df["Close"].rolling(window=20).mean()
-        df["50_MA"] = df["Close"].rolling(window=50).mean()
-        df["ATR"] = df["High"].rolling(14).max() - df["Low"].rolling(14).min()
+        stock = yf.Ticker(ticker)
+        hist = stock.history(period="6mo")
+        hist_full = stock.history(period="5y")
 
-        current_price = df["Close"].iloc[-1]
-        short_avg = df["20_MA"].iloc[-1]
-        long_avg = df["50_MA"].iloc[-1]
-        atr = df["ATR"].iloc[-1]
+        st.subheader(f"📈 {ticker.upper()} - 5 Year Performance")
 
-        dist_pct = ((current_price - long_avg) / long_avg) * 100
-        above_below = "above" if dist_pct > 0 else "below"
-        trend_desc = "rising" if short_avg > df["20_MA"].iloc[-10] else "falling"
-        long_desc = "rising" if long_avg > df["50_MA"].iloc[-10] else "falling"
+        # Chart
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=hist_full.index,
+            y=hist_full["Close"],
+            mode="lines",
+            name="Close Price"
+        ))
+        fig.update_layout(
+            xaxis_title="Date",
+            yaxis_title="Price ($)",
+            template="plotly_dark",
+            hovermode="x unified",
+            height=500
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
-        # ----- Signal -----
-        if short_avg > long_avg:
+        # Indicators
+        close_price = hist["Close"].iloc[-1]
+        ma_short = hist["Close"].rolling(window=20).mean()
+        ma_long = hist["Close"].rolling(window=50).mean()
+        short_ma_val = ma_short.iloc[-1]
+        long_ma_val = ma_long.iloc[-1]
+        atr = (hist["High"] - hist["Low"]).rolling(window=14).mean().iloc[-1]
+        stop = round(close_price - 2 * atr, 2)
+        percent_below_ma = round(((close_price - long_ma_val) / long_ma_val) * 100, 2)
+        position_risk_pct = round(risk / 100, 2)
+        max_loss_per_trade = round(equity * position_risk_pct, 2)
+        shares = int(max_loss_per_trade / (2 * atr)) if atr > 0 else 0
+
+        # Market condition banner
+        icon = "🟢" if percent_below_ma >= 0 else "🔺"
+        st.markdown(
+            f"<div style='background-color:#1f355a;padding:10px;border-radius:5px;color:white'>"
+            f"{icon} Price is {abs(percent_below_ma)}% {'above' if percent_below_ma >= 0 else 'below'} the 50-day average. "
+            f"The short-term average is {'rising' if short_ma_val > ma_short.iloc[-2] else 'falling'}, and the long-term average is "
+            f"{'rising' if long_ma_val > ma_long.iloc[-2] else 'falling'}.</div>", unsafe_allow_html=True)
+
+        # Recommendation
+        if short_ma_val > long_ma_val:
             signal = "🚀 BUY"
-        elif short_avg < long_avg:
+            trend_outlook = "bullish"
+        elif short_ma_val < long_ma_val:
             signal = "🔻 SELL"
+            trend_outlook = "bearish"
         else:
-            signal = "⚖️ HOLD"
+            signal = "⏸ HOLD"
+            trend_outlook = "neutral"
 
-        # ----- Recommendations -----
-        stop_loss = current_price - (2 * atr)
-        max_risk_amt = equity * (risk / 100)
-        position_size = int(max_risk_amt // (current_price - stop_loss))
-
-        # ----- Header -----
         st.markdown(f"### Recommendation: {signal}")
-        st.info(f"🔺 Price is {abs(dist_pct):.2f}% {above_below} the 50-day average. The short-term average is {trend_desc}, and the long-term average is {long_desc}.")
 
-        # ----- Strategy Insight -----
+        # Strategy Insight Panel
         with st.container():
-            with st.container():
-                st.markdown("### 🧠 Moonia Strategy Insight")
-                strategy_box = st.container()
-                with strategy_box:
-                    st.markdown(
-                        f"""
-                        <div style="background-color:#113C35;padding:16px;border-radius:10px">
-                        <ul>
-                        <li>🎯 <b>Buy Target Zone</b>: Around ${current_price:.2f}</li>
-                        <li>🛑 <b>Suggested Stop Loss</b>: ${stop_loss:.2f}</li>
-                        <li>📦 <b>Recommended Position Size</b>: {position_size} shares</li>
-                        <li>💸 <b>Max Risk Amount</b>: ${max_risk_amt:.2f}</li>
-                        <li>📈 <i>Trend is bullish — suitable for high growth strategies and beginner investors.</i></li>
-                        </ul>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
+            st.markdown("""
+                <div style='background-color:#1c3d2e;padding:15px;border-radius:8px;color:white'>
+                <h4>🧠 Moonia Strategy Insight</h4>
+                <ul>
+                <li>🎯 <strong>Buy Target Zone:</strong> Around ${:.2f}</li>
+                <li>🛑 <strong>Suggested Stop Loss:</strong> ${}</li>
+                <li>📦 <strong>Recommended Position Size:</strong> {} shares</li>
+                <li>💸 <strong>Max Risk Amount:</strong> ${}</li>
+                <li>📈 <em>Trend is {}</em> — suitable for {} strategies and {} investors.</li>
+                </ul>
+                </div>
+            """.format(
+                close_price, stop, shares, max_loss_per_trade,
+                trend_outlook,
+                goal.lower(),
+                experience.lower()
+            ), unsafe_allow_html=True)
 
-        # ----- Risk-Adjusted Note -----
-        st.markdown("✅ <b>Your high growth goal aligns with the current bullish momentum.</b>", unsafe_allow_html=True)
+        # Moonia AI's Take
+        ai_take = {
+            "bullish": "Momentum is strong. This could be a good entry point, but always use a stop-loss.",
+            "bearish": "Momentum is fading. Consider waiting for a reversal or using tighter stops.",
+            "neutral": "The market is indecisive. Look for confirmation before entering a position."
+        }
 
-        # ----- AI's Take -----
         st.markdown(
-            """
-            <div style="background-color:#3B2350;padding:16px;border-radius:10px;margin-top:15px">
-            <h4>🤖 Moonia AI’s Take</h4>
-            <p>
-            Based on the current bullish crossover and momentum metrics, this setup shows promise.
-            When price crosses above the 50-day average with upward short-term trend lines and steady volatility (as indicated by ATR),
-            this often signals institutional buying or long setups.
-            Investors targeting growth may find this attractive, but proper risk management —
-            including defined stop-loss levels and position sizing — remains essential.
-            Consider reassessing if short-term momentum weakens significantly in upcoming sessions.
-            </p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+            f"<div style='background-color:#264d1f;padding:10px;border-radius:5px;color:white;margin-top:8px;'>"
+            f"✅ <strong>Your {goal.lower()} goal aligns with the current {trend_outlook} momentum.</strong>"
+            f"</div>", unsafe_allow_html=True)
 
-        # ----- Why it makes sense -----
+        st.markdown(
+            f"<div style='background-color:#1c1c1c;padding:14px;border-radius:8px;margin-top:12px;'>"
+            f"<h4 style='color:white;'>🤖 Moonia AI’s Take</h4>"
+            f"<p style='color:#d3d3d3;'>{ai_take[trend_outlook]}</p>"
+            f"</div>", unsafe_allow_html=True)
+
+        # Insights Section
         with st.expander("📌 Why this makes sense (click to expand)"):
-            st.markdown(f"• 📈 <b>Short-term trend (20-day avg)</b>: ${short_avg:.2f}", unsafe_allow_html=True)
-            st.markdown(f"• 📉 <b>Long-term trend (50-day avg)</b>: ${long_avg:.2f}", unsafe_allow_html=True)
-            st.markdown(f"• 🌐 <b>Daily movement (ATR)</b>: ${atr:.2f}", unsafe_allow_html=True)
-            st.markdown(f"• 🧯 <b>Suggested safety stop</b>: ≈ ${stop_loss:.2f}", unsafe_allow_html=True)
+            if insight_mode == "Simple":
+                st.markdown(f"""
+- 📈 **Short-term trend (20-day avg):** ${round(short_ma_val, 2)}
+- 🌍 **Long-term trend (50-day avg):** ${round(long_ma_val, 2)}
+- 📊 **Daily movement (ATR):** ${round(atr, 2)}
+- 🛑 **Suggested safety stop:** ≈ ${stop}
 
-        # ----- Explanation -----
-        st.markdown("### Here's what it means:")
+---
+
+### Here's what it means:
+
+1. **Your current price is {abs(percent_below_ma)}% {'below' if percent_below_ma < 0 else 'above'} the long-term trend.**
+2. The short-term trend is **{'above' if short_ma_val > long_ma_val else 'below'}** the long-term trend — that's a sign of momentum **{'building' if short_ma_val > long_ma_val else 'slowing down'}**.
+3. Based on your risk setting of **{risk}%**, Moonia suggests you only risk **${max_loss_per_trade}** on this trade.
+4. That means you could trade up to **{shares} shares** and protect yourself with a stop-loss at **${stop}** in case things go the other way.
+
+💡 *This setup looks like a good opportunity right now, but you're protected if momentum shifts.*
+                """)
+            else:
+                st.markdown(f"""
+### 📊 Technical Breakdown
+
+- **20-day MA:** ${round(short_ma_val, 2)}
+- **50-day MA:** ${round(long_ma_val, 2)}
+- **ATR (14):** ${round(atr, 2)}
+- **% Distance from 50 MA:** {percent_below_ma}%
+- **Stop-Loss Recommendation:** ${stop}
+- **Max Risk Allowed:** ${max_loss_per_trade}
+- **Position Sizing Formula:**  
+  \> `Shares = Risk ÷ (2 × ATR)`  
+  \> `= {max_loss_per_trade} ÷ {round(2 * atr, 2)} = {shares} shares`
+
+---
+
+### 📌 Interpretation:
+
+- Trend Signal: **{trend_outlook.upper()}** — based on moving average crossovers.
+- Strategy Fit: **Good for {goal.lower()} goals with {experience.lower()} investors.**
+- Volatility-adjusted sizing and stop-loss included.
+                """)
+
+        if geek_mode:
+            st.markdown("---")
+            st.markdown("### 🧠 Geek Mode – Raw Data")
+            st.code(f"""
+Price: ${round(close_price, 2)}
+20-day MA: {round(short_ma_val, 2)}
+50-day MA: {round(long_ma_val, 2)}
+ATR (14): {round(atr, 2)}
+% Below 50-day MA: {percent_below_ma}%
+Suggested Stop: ${stop}
+Position Size: {shares} shares @ max ${max_loss_per_trade} risk
+            """, language='python')
+
+        with st.expander("📜 Show Historical Data"):
+            st.dataframe(hist_full.tail(30))
+
         st.markdown(
-            f"""
-            1. <b>Your current price is {abs(dist_pct):.2f}% {above_below} the long-term trend.</b>  
-            2. The short-term trend is {trend_desc} and sits {above_below} the long-term average — that’s a sign of momentum {trend_desc}.  
-            3. Based on your risk setting of {risk}%, Moonia suggests you only risk <b>${max_risk_amt:.2f}</b> on this trade.  
-            4. That means you could trade up to <b>{position_size} shares</b> with a stop-loss at <b>${stop_loss:.2f}</b>.  
-            💡 Simply put: This setup looks like a good opportunity right now, but you're protected if momentum shifts.
-            """,
-            unsafe_allow_html=True
-        )
-
-        # ----- Historical Chart -----
-        with st.expander("📉 Show Historical Data"):
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df.index, y=df["Close"], name="Close"))
-            fig.add_trace(go.Scatter(x=df.index, y=df["20_MA"], name="20-Day MA"))
-            fig.add_trace(go.Scatter(x=df.index, y=df["50_MA"], name="50-Day MA"))
-            fig.update_layout(title="Price Chart (5Y)", xaxis_title="Date", yaxis_title="Price", height=500)
-            st.plotly_chart(fig, use_container_width=True)
-
-        # ----- Disclaimer -----
-        st.markdown(
-            "<small>🌕 <i>Disclaimer: Moonia provides educational insights only. No financial advice is given. Invest responsibly.</i></small>",
-            unsafe_allow_html=True,
-        )
+            "<p style='color:#888;margin-top:30px;'>🤖 <em>Disclaimer: Moonia provides educational insights only. No financial advice is given. Invest responsibly.</em></p>",
+            unsafe_allow_html=True)
 
     except Exception as e:
-        st.error("❌ Something went wrong. Please check your inputs or try again later.")
-        st.exception(e)
+        st.error("⚠️ Error loading stock data. Please verify the ticker and try again.")
