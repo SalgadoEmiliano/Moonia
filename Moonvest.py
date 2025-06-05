@@ -29,16 +29,6 @@ We believe that anyone — from first-time investors to experienced traders — 
 Our platform transforms complex data into clear, human-readable insights so you can stop guessing and start growing.
 """)
 
-st.markdown("### 🚀 What Sets Moonvest Apart")
-st.markdown("""
-Unlike other platforms that overwhelm users with raw data and jargon, Moonvest is engineered for clarity and simplicity without sacrificing intelligence.
-
-**Why users choose Moonvest:**
-- 🔍 **Actionable Signals:** Real-time BUY, HOLD, SELL insights based on smart trend analysis.
-- 🎯 **Data-Driven Accuracy:** Our signal engine is based on proven moving average strategies — no fluff.
-- 🧠 **Built for All Levels:** Whether you're investing your first $100 or managing a large portfolio, Moonvest scales with your goals.
-- 🛠 **No Complex Setup:** Just enter a ticker, set your profile, and launch instant analysis.
-
 > Moonvest isn't just a tool — it's your personal strategy engine.
 """)
 
