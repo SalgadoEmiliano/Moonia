@@ -4,7 +4,7 @@ Moonvest is a sleek, data-driven stock analysis app built to empower modern inve
 
 In just one click, Moonvest analyzes stock price data and delivers intelligent **BUY**, **HOLD**, or **SELL** signals — no noise, no guesswork.
 
-👉 [Visit Moonvest at MoonAI.org](http://moonai.org)
+👉 [Visit Moonvest at MoonAI.org](http://moonia.org)
 
 ---
 
