@@ -3,6 +3,7 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 
+
 # App config
 st.set_page_config(page_title="Moonia", page_icon="🌕", layout="wide")
 
@@ -10,6 +11,9 @@ st.set_page_config(page_title="Moonia", page_icon="🌕", layout="wide")
 st.markdown("<h1 style='font-size: 2.5em;'>🌕 Moonia: AI-Powered Stock Strategist</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='color: #bbb;'>Smarter insights. Safer trades. Always one step ahead.</h4>", unsafe_allow_html=True)
 st.markdown("---")
+
+st.title("🌕 Moonia: AI-Powered Stock Strategist")
+st.caption("Smarter insights. Safer trades. Always one step ahead.")
 
 # Sidebar Inputs
 st.sidebar.header("Investor Profile")
@@ -70,13 +74,12 @@ if st.sidebar.button("🚀 Launch Analysis"):
                 f"The short-term average is {'rising' if short_slope > 0 else 'falling'}, and the "
                 f"long-term average is {'rising' if long_slope > 0 else 'falling'}.")
 
-
+        with st.container():
+            st.markdown("### 🧠 Moonia Strategy Insight")
+            st.markdown(
                 f"""
             <div style="background-color:#14352C;padding:16px;border-radius:10px;">
             <ul>
-            with st.container():
-    st.markdown("### 🧠 Moonia Strategy Insight")
-    # rest of the green box goes here
             <li>🎯 <strong>Buy Target Zone:</strong> Around ${round(close_price, 2)}</li>
             <li>🛑 <strong>Suggested Stop Loss:</strong> ${stop}</li>
             <li>📦 <strong>Recommended Position Size:</strong> {shares} shares</li>
@@ -166,7 +169,7 @@ Position Size: {shares} shares @ max ${max_loss_per_trade} risk
             st.dataframe(hist_full.tail(30))
 
         st.markdown(
-            "<div style='margin-top:40px;color:#888;font-size:13px;'>🤖 <em>Disclaimer: Moonia provides educational insights only. No financial advice is given. Invest responsibly.</em></div>",
+            "<div style='margin-top:40px;color:#888;font-size:13px;'>🌕 <em>Disclaimer: Moonia provides educational insights only. No financial advice is given. Invest responsibly.</em></div>",
             unsafe_allow_html=True
         )
 
