@@ -105,7 +105,8 @@ with st.spinner("Moonia AI is thinking..."):
 st.markdown(
     f"<div style='background-color:#2a1938;padding:16px;border-radius:10px;margin-top:16px;'>"
     f"<h4 style='color:#f5f5f5;'>🤖 Moonia AI’s Take</h4>"
-    f"<p style='color:#e0dcee;'>{ai_take}</p></div>",
+    f"<p style='color:#e0dcee;'>{ai_take}</p>"
+    f"</div>",
     unsafe_allow_html=True
 )
 
