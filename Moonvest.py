@@ -4,7 +4,6 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 
-
 # App config
 st.set_page_config(page_title="Moonia", page_icon="🌕", layout="wide")
 
@@ -76,16 +75,16 @@ if st.sidebar.button("🚀 Launch Analysis"):
             st.markdown("### 🧠 Moonia Strategy Insight")
             st.markdown(
                 f"""
-            <div style="background-color:#14352C;padding:16px;border-radius:10px;">
-            <ul>
-            <li>🎯 <strong>Buy Target Zone:</strong> Around ${round(close_price, 2)}</li>
-            <li>🛑 <strong>Suggested Stop Loss:</strong> ${stop}</li>
-            <li>📦 <strong>Recommended Position Size:</strong> {shares} shares</li>
-            <li>💸 <strong>Max Risk Amount:</strong> ${max_loss_per_trade}</li>
-            <li>📈 <em>Trend is {trend_label.lower()} — suitable for high growth strategies and {experience.lower()} investors.</em></li>
-            </ul>
-            </div>
-            """,
+                <div style="background-color:#14352C;padding:16px;border-radius:10px;">
+                <ul>
+                <li>🎯 <strong>Buy Target Zone:</strong> Around ${round(close_price, 2)}</li>
+                <li>🛑 <strong>Suggested Stop Loss:</strong> ${stop}</li>
+                <li>📦 <strong>Recommended Position Size:</strong> {shares} shares</li>
+                <li>💸 <strong>Max Risk Amount:</strong> ${max_loss_per_trade}</li>
+                <li>📈 <em>Trend is {trend_label.lower()} — suitable for high growth strategies and {experience.lower()} investors.</em></li>
+                </ul>
+                </div>
+                """,
                 unsafe_allow_html=True
             )
 
@@ -96,19 +95,18 @@ if st.sidebar.button("🚀 Launch Analysis"):
             unsafe_allow_html=True
         )
 
-try:
-    ai_take = explain_signal(ticker, "BUY" if short_ma_val > long_ma_val else "SELL", "Moving Averages & Momentum")
-except Exception as e:
-    ai_take = f"⚠️ Error generating AI explanation: {e}"
-    
-st.markdown(
-    f"<div style='background-color:#2a1938;padding:16px;border-radius:10px;margin-top:16px;'>"
-    f"<h4 style='color:#f5f5f5;'>🤖 Moonia AI’s Take</h4>"
-    f"<p style='color:#e0dcee;'>{ai_take}</p>"
-    f"</div>",
-    unsafe_allow_html=True
-)
+        # MOONIA AI SECTION — this is now CORRECT and inside the try block
+        ai_take = explain_signal(ticker, "BUY" if short_ma_val > long_ma_val else "SELL", "Moving Averages & Momentum")
 
+        st.markdown(
+            f"<div style='background-color:#2a1938;padding:16px;border-radius:10px;margin-top:16px;'>"
+            f"<h4 style='color:#f5f5f5;'>🤖 Moonia AI’s Take</h4>"
+            f"<p style='color:#e0dcee;'>{ai_take}</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        # WHY THIS MAKES SENSE SECTION
         with st.expander("📌 Why this makes sense (click to expand)"):
             if insight_mode == "Simple":
                 st.markdown(f"""
