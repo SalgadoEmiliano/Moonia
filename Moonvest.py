@@ -96,12 +96,11 @@ if st.sidebar.button("🚀 Launch Analysis"):
             unsafe_allow_html=True
         )
 
-with st.spinner("Moonia AI is thinking..."):
-    try:
-        ai_take = explain_signal(ticker, "BUY" if short_ma_val > long_ma_val else "SELL", "Moving Averages & Momentum")
-    except Exception as e:
-        ai_take = f"⚠️ Error generating AI explanation: {e}"
-
+try:
+    ai_take = explain_signal(ticker, "BUY" if short_ma_val > long_ma_val else "SELL", "Moving Averages & Momentum")
+except Exception as e:
+    ai_take = f"⚠️ Error generating AI explanation: {e}"
+    
 st.markdown(
     f"<div style='background-color:#2a1938;padding:16px;border-radius:10px;margin-top:16px;'>"
     f"<h4 style='color:#f5f5f5;'>🤖 Moonia AI’s Take</h4>"
