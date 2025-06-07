@@ -1,3 +1,4 @@
+from gpt_explainer import explain_signal
 import streamlit as st
 import yfinance as yf
 import pandas as pd
@@ -95,17 +96,15 @@ if st.sidebar.button("🚀 Launch Analysis"):
             unsafe_allow_html=True
         )
 
-        st.markdown(
-            f"<div style='background-color:#2a1938;padding:16px;border-radius:10px;margin-top:16px;'>"
-            f"<h4 style='color:#f5f5f5;'>🤖 Moonia AI’s Take</h4>"
-            f"<p style='color:#e0dcee;'>"
-            f"Based on the current {trend_label.lower()} crossover pattern and momentum metrics, the setup shows promise. "
-            f"When price crosses above the 50-day average with rising short-term trend lines and stable volatility (as measured by ATR), "
-            f"it often indicates sustained bullish behavior — especially when supported by volume. If you're targeting high growth, "
-            f"this could be an effective entry point. But don't ignore risk: a stop-loss and ongoing monitoring are essential to stay protected."
-            f"</p></div>",
-            unsafe_allow_html=True
-        )
+with st.spinner("Moonia AI is thinking..."):
+    ai_take = explain_signal(ticker, "BUY" if short_ma_val > long_ma_val else "SELL", "Moving Averages & Momentum")
+    st.markdown(
+        f"<div style='background-color:#2a1938;padding:16px;border-radius:10px;margin-top:16px;'>"
+        f"<h4 style='color:#f5f5f5;'>🤖 Moonia AI’s Take</h4>"
+        f"<p style='color:#e0dcee;'>{ai_take}</p>"
+        f"</div>",
+        unsafe_allow_html=True
+    )
 
         with st.expander("📌 Why this makes sense (click to expand)"):
             if insight_mode == "Simple":
