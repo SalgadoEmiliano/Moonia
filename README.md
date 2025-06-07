@@ -65,7 +65,7 @@ Everything is interpreted through **Moonia AI**, which delivers smart, human-rea
 
 ## 🔍 Core Features
 
-### 🧠 Smart Signals  
+### 📊 Smart Signals  
 AI-driven **BUY**, **SELL**, or **HOLD** logic using crossovers and momentum trends.
 
 ### 🧠 Moonia Strategy Insight  
