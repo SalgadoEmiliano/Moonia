@@ -1,99 +1,110 @@
-# 🌕 Moonia – Your Personal Stock Strategy Engine
+# 🌕 Moonia — Your AI-Powered Stock Strategy Engine
 
-Moonia is an AI-powered stock analysis tool that gives you clarity, not confusion. With just one click, Moonia scans real-time price data and delivers intelligent, personalized signals — **BUY**, **HOLD**, or **SELL** — along with a full breakdown of your trading strategy.
+Moonia is an **AI-powered stock strategy app** that delivers clear, personalized trade insights — no noise, no fluff.
 
-No fluff. No guessing. Just smart, data-driven guidance — instantly.
+With just one click, Moonia scans real-time market data and generates actionable **BUY**, **SELL**, or **HOLD** signals — enhanced by **AI commentary** that explains _why_ the signal makes sense. It also provides precise risk-based sizing and stop-loss suggestions tailored to your profile.
 
-🔗 [Try Moonia at Moonia.org](https://moonia.org)
+Built for modern investors. No guesswork. Just intelligent, adaptive insights.
 
----
-
-## 🧠 Meet Moonia AI
-
-At the heart of Moonia is **Moonia AI** — your personal investing assistant.
-
-Moonia AI breaks down the market setup using:
-- 🔁 **Crossover patterns**  
-- 📈 **Momentum metrics**  
-- 📊 **Volatility readings (ATR)**  
-- 📉 **Trend alignment with volume**
-
-Then it translates this into a smart narrative explaining **why the current signal makes sense** — so you’re not just told what to do, but shown the logic behind it.
+👉 [Launch Moonia at Moonia.org](https://moonia.org)
 
 ---
 
-## 💡 Why Moonia Stands Out
+## 🤖 Meet Moonia AI
 
-Moonia is engineered to be the most **transparent, intelligent**, and **user-friendly** analysis tool available:
+At the heart of Moonia is **Moonia AI** — your personal investing co-pilot.
 
-✅ AI-powered strategy commentary (not just numbers)  
-✅ Real position sizing and stop-loss suggestions  
-✅ Risk-adjusted advice for beginners to pros  
-✅ 1-click access — works in any browser  
-✅ Built for clarity, not clutter  
-✅ 100% free
+Moonia AI interprets technical signals using real market data and then generates an **AI-based explanation** in natural language. You’re not left with just "BUY" or "SELL" — you’ll know **why**.
 
-> Other tools give you signals. Moonia explains them.
+It processes:
+
+✅ Crossover patterns  
+✅ Momentum trends  
+✅ Volatility analysis (ATR)  
+✅ Recent momentum + volume context  
+✅ Your risk profile and experience level
+
+Then, Moonia AI explains the logic behind the signal — in seconds.
+
+---
+
+## 🌟 Why Moonia Stands Out
+
+Moonia is designed for **transparency**, **AI-first reasoning**, and **usability**:
+
+🧠 **AI-powered commentary** — not just numbers  
+📈 **Real-time signals** + personalized stop-loss and position sizing  
+✅ **Risk-adjusted sizing** — perfect for beginners and pros  
+💡 **Clear explanations** — not black-box models  
+🌎 **Works 100% in-browser** — no installs, fast and lightweight  
+🚀 **Built with OpenRouter AI layer** — cost-effective, blazing fast  
+💰 **100% free** — no paywalls or upsells
 
 ---
 
 ## ⚙️ How It Works
 
-Moonia combines technical indicators, AI commentary, and your personal preferences (like risk tolerance and growth goal) to generate trade guidance in seconds.
+Moonia computes technical indicators, generates **AI commentary**, and personalizes the strategy based on your risk tolerance and goal:
 
-| Market Behavior        | Signal         |
-|------------------------|----------------|
-| Momentum Weakens       | 🔻 SELL         |
-| Momentum Strengthens   | 🚀 BUY          |
-| Trend Is Unclear       | 🤝 HOLD         |
+| Market Behavior         | Signal |
+|-------------------------|--------|
+| Momentum Weakens        | 🔻 SELL   |
+| Momentum Strengthens    | 🚀 BUY    |
+| Trend is Unclear        | ⚪ HOLD    |
 
 It calculates:
-- Price averages (20-day, 50-day)
+
+- Moving averages (20-day, 50-day)
 - Volatility (ATR)
 - Trend momentum and volume
-- Position sizing based on your risk limit
+- Position sizing based on your risk % and equity
 
-All of this is interpreted through **Moonia AI**, which generates smart, human-readable insights.
+Everything is interpreted through **Moonia AI**, which delivers smart, human-readable explanations — not generic text.
 
 ---
 
 ## 🔍 Core Features
 
-### 🚦 Smart Signals  
-Instant **BUY**, **HOLD**, or **SELL** logic using crossovers and momentum trends.
+### 🧠 Smart Signals  
+AI-driven **BUY**, **SELL**, or **HOLD** logic using crossovers and momentum trends.
 
 ### 🧠 Moonia Strategy Insight  
 Includes:
-- 🎯 **Buy Target Zone**
-- 🛑 **Stop Loss Suggestion**
-- 📦 **Recommended Position Size**
-- 💸 **Max Risk Amount**
-- 📈 **Trend Bias Explanation**
 
-### 🤖 Moonia AI's Take  
-A dedicated insight panel that gives **clear, AI-generated reasoning** for the current recommendation — so you understand the setup, not just the signal.
+- 🎯 Buy Target Zone  
+- 🛑 Suggested Stop Loss  
+- 📦 Recommended Position Size  
+- 💸 Max Risk Amount  
+- 📈 Trend Explanation
 
-### 🧪 Geek Mode  
+### 🤖 Moonia AI’s Take  
+A dedicated insight panel with **AI-generated reasoning** for the current signal — so you understand the _setup_, not just the signal.
+
+### 🧑‍💻 Geek Mode  
 View raw indicators, formulas, and volatility bands — perfect for advanced traders.
 
 ### 🌓 Insight Modes  
 Toggle between:
-- **Simple** – Clean, beginner-friendly views  
-- **Advanced** – Raw indicators + technical explanation
 
-### 📊 Historical Backtesting  
-See how the current setup compares to previous signal outcomes.
+- **Simple** — Beginner-friendly explanations  
+- **Advanced** — Raw indicators + technical explanation
+
+### ⏳ Historical Backtesting (coming soon)  
+Compare current signal context with prior outcomes.
 
 ---
 
-## 🔥 What Makes Moonia Better
+## 🚀 What Makes Moonia Better
 
-❌ Most apps give you vague predictions or cluttered dashboards.  
-❌ Social media gives you hype and no protection.
+Most apps throw generic indicators or cluttered dashboards at you.  
+Moonia gives you **true signals**, **AI-backed logic**, and a real strategy.
 
-✅ Moonia gives you **facts, AI-backed insight, and real strategy**.
+✅ AI-first commentary — not just numbers  
+✅ Clear risk-adjusted sizing  
+✅ Built for beginners to pros  
+✅ Fast + free — works in any browser  
 
-We're more than a signal generator — we're your **AI-powered strategy engine.**
+We’re more than a signal generator — we’re your **AI-powered strategy engine**.
 
 ---
 
@@ -101,14 +112,17 @@ We're more than a signal generator — we're your **AI-powered strategy engine.*
 
 - 🐍 Python  
 - 📊 Plotly  
-- 🧠 Streamlit  
+- 🖥 Streamlit  
 - 📈 Yahoo Finance API  
-- 🌐 GitHub for version control
+- 🧠 OpenRouter AI API  
+- 🗂 GitHub for version control
 
 ---
 
-## 🚀 Try It Now
+## 🎬 Try It Now
 
-[Launch Moonia →](https://moonia.org)
+👉 [Launch Moonia](https://moonia.org)
 
-> *Moonia isn’t just a tool — it’s your personal edge in the market.*
+---
+
+Moonia isn’t just a tool — it’s your **personal AI edge in the market**.
